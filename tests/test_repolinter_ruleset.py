@@ -27,17 +27,22 @@ class RepolinterRulesetTests(unittest.TestCase):
             "readme-file-exists",
             "codeowners-file-exists",
         }
-        self.assertTrue(expected_rules.issubset(set(self.ruleset["rules"].keys())))
+        actual_rules = set(self.ruleset["rules"].keys())
+        missing_rules = expected_rules - actual_rules
+        self.assertFalse(missing_rules, f"Missing expected rules: {sorted(missing_rules)}")
 
     def test_each_rule_has_required_policy_metadata(self):
         for name, rule_data in self.ruleset["rules"].items():
             with self.subTest(rule=name):
                 self.assertIn("policyInfo", rule_data)
                 self.assertIn("policyUrl", rule_data)
-                self.assertTrue(str(rule_data["policyInfo"]).strip())
+                self.assertIsInstance(rule_data["policyInfo"], str)
+                self.assertGreater(len(rule_data["policyInfo"].strip()), 0)
                 self.assertTrue(str(rule_data["policyUrl"]).startswith("https://"))
 
     def test_format_disclaimer_references_repolinter_action(self):
+        self.assertIn("formatOptions", self.ruleset)
+        self.assertIn("disclaimer", self.ruleset["formatOptions"])
         disclaimer = self.ruleset["formatOptions"]["disclaimer"]
         self.assertIn("repolinter-action", disclaimer)
 

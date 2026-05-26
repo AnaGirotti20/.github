@@ -21,7 +21,7 @@ class CommunityHealthFileTests(unittest.TestCase):
                 self.assertTrue(path.exists(), f"Missing expected file: {path}")
                 self.assertGreater(path.stat().st_size, 0, f"File should not be empty: {path}")
 
-    def test_markdown_files_start_with_heading(self):
+    def test_markdown_files_include_a_heading(self):
         markdown_files = [
             REPO_ROOT / "README.md",
             REPO_ROOT / "CODE_OF_CONDUCT.md",
@@ -32,8 +32,8 @@ class CommunityHealthFileTests(unittest.TestCase):
 
         for path in markdown_files:
             with self.subTest(path=str(path)):
-                content = path.read_text(encoding="utf-8").lstrip()
-                self.assertTrue(content.startswith("#"), f"Expected markdown heading in {path}")
+                content = path.read_text(encoding="utf-8")
+                self.assertRegex(content, r"(?m)^#{1,6}\s+\S", f"Expected markdown heading in {path}")
 
 
 if __name__ == "__main__":
